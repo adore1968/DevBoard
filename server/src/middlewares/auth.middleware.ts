@@ -1,5 +1,5 @@
 import type { RequestHandler } from "express";
-import { verify } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 const authMiddleware: RequestHandler = (req, res, next): void => {
   const token = req.cookies?.token;
@@ -21,7 +21,7 @@ const authMiddleware: RequestHandler = (req, res, next): void => {
   }
 
   try {
-    const decoded = verify(token, secret);
+    const decoded = jwt.verify(token, secret);
 
     if (
       typeof decoded !== "object" ||

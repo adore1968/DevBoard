@@ -2,13 +2,15 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
+import errorMiddleware from "./middlewares/error.middleware.js";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
 // Middlewares globales
 app.use(helmet());
 
-app.use(cors({ origin: "https://localhost:5173", credentials: true }));
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -20,5 +22,9 @@ app.get("/api/health", (_req, res) => {
     message: "DevBoard API is running",
   });
 });
+
+app.use("/api/auth", authRoutes);
+
+app.use(errorMiddleware);
 
 export default app;
