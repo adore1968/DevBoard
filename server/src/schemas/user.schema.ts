@@ -28,3 +28,7 @@ export const updatePasswordSchema = z
     message: "New password must be different from current password",
     path: ["newPassword"],
   });
+
+export const updateUserRoleSchema = z.object({
+  role: z.enum(["user", "admin"]),
+});

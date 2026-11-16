@@ -1,4 +1,4 @@
-import type { IBaseDocument } from "./common.types";
+import type { IBaseDocument } from "./common.types.js";
 
 export type UserRole = "user" | "admin";
 

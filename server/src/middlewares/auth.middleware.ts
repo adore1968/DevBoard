@@ -1,7 +1,12 @@
 import type { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-const authMiddleware: RequestHandler = (req, res, next): void => {
+const authMiddleware: RequestHandler = async (
+  req,
+  res,
+  next,
+): Promise<void> => {
   const token = req.cookies?.token;
 
   if (!token) {
@@ -20,15 +25,32 @@ const authMiddleware: RequestHandler = (req, res, next): void => {
     return;
   }
 
-  try {
-    const decoded = jwt.verify(token, secret);
+  let decoded;
 
-    if (
-      typeof decoded !== "object" ||
-      decoded === null ||
-      typeof decoded.id !== "string" ||
-      (decoded.role !== "user" && decoded.role !== "admin")
-    ) {
+  try {
+    decoded = jwt.verify(token, secret);
+  } catch (error) {
+    res
+      .status(401)
+      .json({ status: "error", message: "Invalid or expired token" });
+    return;
+  }
+
+  if (
+    typeof decoded !== "object" ||
+    decoded === null ||
+    typeof decoded.id !== "string"
+  ) {
+    res
+      .status(401)
+      .json({ status: "error", message: "Invalid authentication token" });
+    return;
+  }
+
+  try {
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
       res
         .status(401)
         .json({ status: "error", message: "Invalid authentication token" });
@@ -36,15 +58,13 @@ const authMiddleware: RequestHandler = (req, res, next): void => {
     }
 
     req.user = {
-      id: decoded.id,
-      role: decoded.role,
+      id: user._id.toString(),
+      role: user.role,
     };
 
     next();
   } catch (error) {
-    res
-      .status(401)
-      .json({ status: "error", message: "Invalid or expired token" });
+    next(error);
   }
 };
 
