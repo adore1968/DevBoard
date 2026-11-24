@@ -5,6 +5,7 @@ import helmet from "helmet";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import projectRoutes from "./routes/project.routes.js";
 
 const app = express();
 
@@ -27,6 +28,8 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 
 app.use("/api/users", userRoutes);
+
+app.use("/api/projects", projectRoutes);
 
 app.use(errorMiddleware);
 

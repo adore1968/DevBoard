@@ -6,7 +6,9 @@ import {
 } from "../schemas/user.schema.js";
 import { comparePassword, hashPassword } from "../utils/password.js";
 import AppError from "../utils/AppError.js";
-import { UserRole } from "../types/user.types.js";
+import type { UserRole } from "../types/user.types.js";
+import Project from "../models/Project.js";
+import Task from "../models/Task.js";
 
 type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 type UpdatePasswordInput = z.infer<typeof updatePasswordSchema>;
@@ -134,5 +136,39 @@ export const updateUserRole = async (
     name: userFound.name,
     email: userFound.email,
     role: userFound.role,
+  };
+};
+
+export const deleteUser = async (userId: string, adminId: string) => {
+  const userFound = await User.findById(userId);
+
+  if (!userFound) {
+    throw new AppError("User not found", 404);
+  }
+
+  if (userId === adminId) {
+    throw new AppError("You cannot delete your own account", 403);
+  }
+
+  if (userFound.role === "admin") {
+    const adminCount = await User.countDocuments({ role: "admin" });
+
+    if (adminCount <= 1) {
+      throw new AppError("Cannot delete the last administrator", 403);
+    }
+  }
+
+  const projects = await Project.find({ owner: userId }).select("_id");
+
+  const projectIds = projects.map((project) => project._id);
+
+  await Task.deleteMany({ project: { $in: projectIds } });
+
+  await Project.deleteMany({ owner: userId });
+
+  await User.findByIdAndDelete(userId);
+
+  return {
+    message: "User deleted successfully",
   };
 };

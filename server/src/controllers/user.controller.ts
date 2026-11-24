@@ -5,6 +5,7 @@ import {
   updateUserRole,
   getAllUsers,
   getUserById,
+  deleteUser,
 } from "../services/user.service.js";
 
 export const updateProfileController: RequestHandler = (req, res, next) => {
@@ -83,5 +84,25 @@ export const getUserByIdController: RequestHandler = (req, res, next) => {
     .then((user) => {
       res.status(200).json({ status: "success", data: { user } });
     })
+    .catch(next);
+};
+
+export const deleteUserController: RequestHandler = (req, res, next) => {
+  if (!req.user) {
+    res
+      .status(401)
+      .json({ status: "error", message: "Authentication required" });
+    return;
+  }
+
+  const userId = req.params.userId;
+
+  if (typeof userId !== "string") {
+    res.status(400).json({ status: "error", message: "Invalid user ID" });
+    return;
+  }
+
+  deleteUser(userId, req.user.id)
+    .then((result) => res.status(200).json({ status: "success", data: result }))
     .catch(next);
 };

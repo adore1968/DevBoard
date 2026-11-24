@@ -1,5 +1,5 @@
 import type { Types } from "mongoose";
-import type { IBaseDocument } from "./common.types";
+import type { IBaseDocument } from "./common.types.js";
 
 export type ProjectStatus = "active" | "completed" | "archived";
 

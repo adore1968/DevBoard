@@ -7,6 +7,7 @@ import {
   updateUserRoleController,
   getAllUsersController,
   getUserByIdController,
+  deleteUserController,
 } from "../controllers/user.controller.js";
 import {
   updateProfileSchema,
@@ -46,6 +47,13 @@ router.get(
   authMiddleware,
   authorize("admin"),
   getUserByIdController,
+);
+
+router.delete(
+  "/:userId",
+  authMiddleware,
+  authorize("admin"),
+  deleteUserController,
 );
 
 export default router;
